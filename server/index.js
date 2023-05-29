@@ -1,17 +1,30 @@
 const express = require("express");
 const app = express();
+const dotenv = require("dotenv");
+const cors = require("cors");
 const fs = require("fs");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+//database schema
 const user_bio_data = require("./schema/user_bio_data.js");
+const register_user = require("./schema/register_user_Schema");
+const Bio_Data = require("./schema/Bio_data");
+
+//multer is to upload data in database
 const multer = require("multer");
 const storage = require("./Middleware/MulterMiddleware");
-const register_user = require("./schema/register_user_Schema");
+const UserDocuments = require("./Middleware/DocmentsMiddlewere");
+//middlewere
+const jwtMiddleware = require("./Middleware/JWTMiddelwere");
 
-const PORT = process.env.PORT || 8000;
-const SALT_ROUNDS = 10;
+dotenv.config();
+const PORT = process.env.PORT || 5000;
 const uploads = multer({ storage });
+
 app.use(express.json());
+app.use(cors());
 
 mongoose
   .connect("mongodb://localhost:27017/QR-DATA-APP", {
@@ -31,42 +44,111 @@ app.get("/", (req, res) => {
 
 app.post("/register", async (req, res) => {
   try {
-    const { Name, Email, Password, ConforimPassword } = req.body;
+    const { Name, Email, Password, ConfirmPassword } = req.body;
 
     const user_exists = await register_user.findOne({ Email });
 
-    if (user_exists) {
-      return res.status(200).send("Email is already registed");
+    if (user_exists && user_exists.Email == Email) {
+      return res.status(400).send("Email is already registed");
     }
 
-    if (Password !== ConforimPassword) {
-      return res.status(200).send("passwords did'nt match");
+    if (Password !== ConfirmPassword) {
+      return res.status(400).send("passwords did'nt match");
     }
 
-    console.log(typeof SALT_ROUNDS);
-
-    const hashing = await bcrypt
-      .hash(Password, SALT_ROUNDS)
-      .then((hash) => {
-        console.log("Hash ", hash);
-      })
-      .catch((err) => console.error(err.message));
-
-    await bcrypt.compare(ConforimPassword, Password, function (err, isMatch) {
-      if (err) {
-        throw err;
-      } else if (!isMatch) {
-        console.log("Password doesn't match!");
-      } else {
-        console.log("Password matches!");
-      }
+    const user = new register_user({
+      Name,
+      Email,
+      Password,
+      ConfirmPassword,
     });
-    // const user = new user_bio_data({});
+
+    await user.save();
+    console.log("registration completed");
+
+    res.status(200).send("registration completed");
   } catch (error) {
     if (error) throw error;
-    res.status(500).send("error is on the register method");
+    res.status(400).send("error is on the register method");
   }
 });
+
+app.post("/login", async (req, res) => {
+  try {
+    const { Email, Password } = req.body;
+
+    const user_exits = await register_user.findOne({ Email });
+    console.log(user_exits);
+
+    if (!user_exits) {
+      return res.status(400).send("User is not registered");
+    }
+
+    const PasswordMatch = bcrypt.compareSync(Password, user_exits.Password);
+
+    if (!PasswordMatch) {
+      return res.status(400).send("Password is incorrect");
+    }
+
+    const token = jwt.sign(
+      { _id: user_exits._id.toString() },
+      process.env.SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+    res.json({ token });
+  } catch (error) {
+    console.error(error);
+    res.status(400).send("An error occurred during login");
+  }
+});
+
+app.get("/home", jwtMiddleware, async (req, res) => {
+  try {
+    const user_exists = await register_user.findById(req.user._id);
+    if (!user_exists) {
+      res.status(404).send("User not found");
+    }
+    res.status(200).send(user_exists);
+  } catch (error) {
+    if (error) throw error;
+    res.status(400).send("Error on the home page");
+  }
+});
+
+app.post("/upload", jwtMiddleware, UserDocuments, async (req, res) => {
+  try {
+    const { Name, FatherName, DOB, PhoneNumber, Language, Education, Addres } =
+      req.body;
+
+    const user_exists = await Bio_Data.findOne({ Email });
+
+    if (user_exists) {
+      return res.send("email is already added used");
+    }
+
+    const Addharlocation = `./Documents/${req.user.email}/`;
+
+    const Bio = new Bio_Data({
+      Name,
+      FatherName,
+      DOB,
+      PhoneNumber,
+      Language,
+      Addres,
+      Education,
+      workExperience,
+      AddharCard: {
+        data: fs.readFileSync(location + req.file.filename),
+        contentType: "pdf/doc",
+      },
+    });
+  } catch (error) {
+    if (error) throw error;
+    res.status(400).send("Error on the upload page");
+  }
+});
+
+// HTML5, CSS3, JavaScript, Typescript, React, and Redux
 
 app.post("/", uploads.single("AdharCard"), async (req, res) => {
   try {
@@ -102,7 +184,7 @@ app.listen(PORT, () => {
   console.log("Server is running at port", PORT);
 });
 
-process.on("uncaughtException", (err) => {
-  console.log("This error occurred:", err);
-  process.exit(1);
-});
+// process.on("uncaughtException", (err) => {
+//   console.log("This error occurred:", err);
+//   process.exit(1);
+// });

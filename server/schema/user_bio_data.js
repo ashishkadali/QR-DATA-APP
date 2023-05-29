@@ -20,4 +20,4 @@ const user_bio_data = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("USER", user_bio_data);
+module.exports = mongoose.model("user_bio_data", user_bio_data);
