@@ -6,6 +6,7 @@ const fs = require("fs");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const path = require("path");
 
 //database schema
 const user_bio_data = require("./schema/user_bio_data.js");
@@ -115,7 +116,7 @@ app.get("/home", jwtMiddleware, async (req, res) => {
   }
 });
 
-app.post("/upload", jwtMiddleware, UserDocuments, async (req, res, file) => {
+app.post("/upload", jwtMiddleware, UserDocuments, async (req, res, err) => {
   try {
     const {
       Name,
@@ -136,37 +137,40 @@ app.post("/upload", jwtMiddleware, UserDocuments, async (req, res, file) => {
       return res.send("email is already added used");
     }
 
-    const Addharlocation = `../Public/Documents/${req.user._id}/AddharCard/`;
-    const Resumelocation = `../Public/Documents/${req.user._id}/Resume/`;
+    const Addharlocation = `./Public/Documents/${req.user._id}/AddharCard/`;
+    const Resumelocation = `./Public/Documents/${req.user._id}/Resume/`;
 
-    console.log(req.file.filename);
-    console.log("hi");
+    // const Addharpath = path.join(Addharlocation, req.file.filename);
+    // const Resumepath = path.join(Resumelocation, req.file.filename);
 
-    // const Bio = new Bio_Data({
-    //   Name,
-    //   FatherName,
-    //   Email,
-    //   Mobile,
-    //   Gender,
-    //   DOB,
-    //   Language,
-    //   Addres,
-    //   Education,
-    //   workExperience,
-    //   AddharCard: {
-    //     data: fs.readFileSync(Addharlocation + req.file.filename),
-    //     contentType: "pdf/doc",
-    //   },
-    //   Resume: {
-    //     data: fs.readFileSync(Resumelocation + req.file.filename),
-    //     contentType: "pdf/doc",
-    //   },
-    // });
+    // console.log(fs.readFileSync(Addharlocation));
+    // console.log("hi");
 
-    // await Bio.save();
-    // console.log("Data saved in the database");
+    const Bio = new Bio_Data({
+      Name,
+      FatherName,
+      Email,
+      Mobile,
+      Gender,
+      DOB,
+      Language,
+      Addres,
+      Education,
+      workExperience,
+      AddharCard: {
+        data: fs.readFileSync(Addharlocation + req.file.filename),
+        contentType: "application/pdf/doc",
+      },
+      Resume: {
+        data: fs.readFileSync(Resumelocation + req.file.filename),
+        contentType: "application/pdf/doc",
+      },
+    });
 
-    // res.send("Data is saved in data base");
+    await Bio.save();
+    console.log("Data saved in the database");
+
+    res.send("Data is saved in data base");
   } catch (error) {
     if (error) throw error;
     res.status(400).send("Error on the upload page");

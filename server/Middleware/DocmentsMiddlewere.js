@@ -2,7 +2,6 @@ const multer = require("multer");
 const fs = require("fs");
 
 const path = require("path");
-const { application } = require("express");
 
 const Documents = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -11,7 +10,7 @@ const Documents = multer.diskStorage({
         file.mimetype == "application/doc" ||
         file.mimetype == "application/pdf"
       ) {
-        const Addharlocation = `../Public/Documents/${req.user._id}/AddharCard/`;
+        const Addharlocation = `./Public/Documents/${req.user._id}/AddharCard/`;
 
         if (!fs.existsSync(Addharlocation)) {
           fs.mkdirSync(Addharlocation, { recursive: true });
@@ -28,7 +27,7 @@ const Documents = multer.diskStorage({
         file.mimetype == "application/doc" ||
         file.mimetype == "application/pdf"
       ) {
-        const Resumelocation = `../Public/Documents/${req.user._id}/Resume/`;
+        const Resumelocation = `./Public/Documents/${req.user._id}/Resume/`;
 
         if (!fs.existsSync(Resumelocation)) {
           fs.mkdirSync(Resumelocation, { recursive: true });
