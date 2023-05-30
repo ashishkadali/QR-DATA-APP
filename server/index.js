@@ -115,33 +115,58 @@ app.get("/home", jwtMiddleware, async (req, res) => {
   }
 });
 
-app.post("/upload", jwtMiddleware, UserDocuments, async (req, res) => {
+app.post("/upload", jwtMiddleware, UserDocuments, async (req, res, file) => {
   try {
-    const { Name, FatherName, DOB, PhoneNumber, Language, Education, Addres } =
-      req.body;
-
-    const user_exists = await Bio_Data.findOne({ Email });
-
-    if (user_exists) {
-      return res.send("email is already added used");
-    }
-
-    const Addharlocation = `./Documents/${req.user.email}/`;
-
-    const Bio = new Bio_Data({
+    const {
       Name,
       FatherName,
+      Email,
+      Mobile,
+      Gender,
       DOB,
-      PhoneNumber,
       Language,
       Addres,
       Education,
       workExperience,
-      AddharCard: {
-        data: fs.readFileSync(location + req.file.filename),
-        contentType: "pdf/doc",
-      },
-    });
+    } = req.body;
+
+    const user_exists = await register_user.findOne({ Email });
+
+    if (!user_exists) {
+      return res.send("email is already added used");
+    }
+
+    const Addharlocation = `../Public/Documents/${req.user._id}/AddharCard/`;
+    const Resumelocation = `../Public/Documents/${req.user._id}/Resume/`;
+
+    console.log(req.file.filename);
+    console.log("hi");
+
+    // const Bio = new Bio_Data({
+    //   Name,
+    //   FatherName,
+    //   Email,
+    //   Mobile,
+    //   Gender,
+    //   DOB,
+    //   Language,
+    //   Addres,
+    //   Education,
+    //   workExperience,
+    //   AddharCard: {
+    //     data: fs.readFileSync(Addharlocation + req.file.filename),
+    //     contentType: "pdf/doc",
+    //   },
+    //   Resume: {
+    //     data: fs.readFileSync(Resumelocation + req.file.filename),
+    //     contentType: "pdf/doc",
+    //   },
+    // });
+
+    // await Bio.save();
+    // console.log("Data saved in the database");
+
+    // res.send("Data is saved in data base");
   } catch (error) {
     if (error) throw error;
     res.status(400).send("Error on the upload page");

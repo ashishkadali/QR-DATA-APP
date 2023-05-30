@@ -3,53 +3,55 @@ const mongoose = require("mongoose");
 const Bio_Data = new mongoose.Schema({
   Name: {
     type: String,
-    require: true,
+    required: true,
   },
   FatherName: {
     type: String,
-    require: true,
+    required: true,
   },
 
   Email: {
     type: String,
-    require: true,
+    required: true,
     unique: true,
   },
 
   Mobile: {
     type: Number,
-    require: true,
-    unique: true,
-  },
-
-  Age: {
-    type: Number,
     required: true,
+    unique: true,
   },
 
   Gender: {
     type: String,
-    require: True,
-    enum: ["Male", "Female", "Others"],
+    required: true,
   },
 
-  Language: { type: [String], require: true },
+  DOB: {
+    type: [String],
+    required: true,
+  },
+
+  Language: {
+    type: [String],
+    required: true,
+  },
 
   Addres: [
     {
       Address: {
         type: String,
-        require: true,
+        required: true,
       },
 
       City: {
-        type: Number,
-        require: true,
+        type: String,
+        required: true,
       },
 
       Pincode: {
         type: Number,
-        require: true,
+        required: true,
       },
     },
   ],
@@ -58,8 +60,8 @@ const Bio_Data = new mongoose.Schema({
     {
       degree: { type: String, required: true },
       institution: { type: String, required: true },
-      Percentage: { type: Number, require: true },
-      year: { type: Number, required: true },
+      Percentage: { type: Number, required: true },
+      year: { type: [Number], required: true },
     },
   ],
 
@@ -67,18 +69,18 @@ const Bio_Data = new mongoose.Schema({
     {
       company: { type: String, required: true },
       position: { type: String, required: true },
-      duration: { type: String, required: true },
+      duration: { type: [Number], required: true },
     },
   ],
 
   AddharCard: {
     type: Buffer,
-    require: true,
+    required: true,
   },
 
   Resume: {
     type: Buffer,
-    require: true,
+    required: true,
   },
 });
 
