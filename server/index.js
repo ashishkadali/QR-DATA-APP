@@ -137,7 +137,7 @@ app.post("/upload", jwtMiddleware, UserDocuments, async (req, res, err) => {
       return res.send("email is already added used");
     }
 
-    const Addharlocation = `./Public/Documents/${req.user._id}/AddharCard/`;
+    const Addharlocation = `./Public/Documents/${req.user._id}/AddharCard`;
     const Resumelocation = `./Public/Documents/${req.user._id}/Resume/`;
 
     // const Addharpath = path.join(Addharlocation, req.file.filename);
@@ -146,26 +146,26 @@ app.post("/upload", jwtMiddleware, UserDocuments, async (req, res, err) => {
     // console.log(fs.readFileSync(Addharlocation));
     // console.log("hi");
 
-    const Bio = new Bio_Data({
-      Name,
-      FatherName,
-      Email,
-      Mobile,
-      Gender,
-      DOB,
-      Language,
-      Addres,
-      Education,
-      workExperience,
-      AddharCard: {
-        data: fs.readFileSync(Addharlocation + req.file.filename),
-        contentType: "application/pdf/doc",
-      },
-      Resume: {
-        data: fs.readFileSync(Resumelocation + req.file.filename),
-        contentType: "application/pdf/doc",
-      },
-    });
+    // const Bio = new Bio_Data({
+    //   Name,
+    //   FatherName,
+    //   Email,
+    //   Mobile,
+    //   Gender,
+    //   DOB,
+    //   Language,
+    //   Addres,
+    //   Education,
+    //   workExperience,
+    //   AddharCard: {
+    //     data: fs.readFileSync(Addharlocation + req.file.filename),
+    //     contentType: "application/pdf/doc",
+    //   },
+    //   Resume: {
+    //     data: fs.readFileSync(Resumelocation + req.file.filename),
+    //     contentType: "application/pdf/doc",
+    //   },
+    // });
 
     await Bio.save();
     console.log("Data saved in the database");
