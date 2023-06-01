@@ -9,18 +9,16 @@ const jwtMiddleware = async (req, res, next) => {
       return;
     }
 
-    jwt.verify(jwttoken, process.env.SECRET_KEY, (err, user_exists) => {
+    jwt.verify(jwttoken, process.env.SECRET_KEY, (err, decoded) => {
       if (err) {
         if (err.name === "TokenExpiredError") {
-          res.status(404).send("JWT token has expired.");
-          return res.end();
+          return res.status(404).send("JWT token has expired.");
         } else {
-          res.status(404).send("Invalid JWT token.");
-          return res.end();
+          return res.status(404).send("Invalid JWT token.");
         }
       }
-      console.log(user_exists);
-      req.user = user_exists;
+      console.log(decoded);
+      req.user = decoded;
       next();
     });
   } catch (error) {

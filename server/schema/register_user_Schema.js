@@ -22,11 +22,10 @@ const register_user = new mongoose.Schema({
     required: true,
   },
 });
-
 register_user.pre("save", async function (next) {
   if (this.isModified("Password")) {
-    this.Password = await bcrypt.hash(this.Password, 12);
-    this.ConfirmPassword = await bcrypt.hash(this.ConfirmPassword, 12);
+    this.Password = await bcrypt.hash(this.Password, 13);
+    this.ConfirmPassword = await bcrypt.hash(this.ConfirmPassword, 13);
   }
   next();
 });
